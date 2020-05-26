@@ -12,7 +12,7 @@ module.exports = {
     weddingDate: new Date(`06/12/2021 12:00:00Z`),
   },
   plugins: [
-    // `gatsby-plugin-preact`,
+    `gatsby-plugin-preact`,
     `gatsby-plugin-react-helmet`,
     `gatsby-plugin-layout`,
     {
@@ -42,6 +42,6 @@ module.exports = {
         trackingId: process.env.GOOGLE_TRACKING_ID,
       },
     },
-    // `gatsby-plugin-preload-fonts`,
+    `gatsby-plugin-preload-fonts`,
   ],
 }

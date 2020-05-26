@@ -118,3 +118,24 @@ exports.createPages = async function createPages({ actions, graphql }) {
     })
   })
 }
+
+exports.onCreateWebpackConfig = ({ stage, actions, getConfig }) => {
+  // add preact to the framework bundle
+  if (stage === `build-javascript`) {
+    const webpackConfig = getConfig()
+
+    if (webpackConfig.optimization.splitChunks.cacheGroups.framework.test) {
+      const regex =
+        webpackConfig.optimization.splitChunks.cacheGroups.framework.test
+      // replace react libs with preact
+      webpackConfig.optimization.splitChunks.cacheGroups.framework.test = module => {
+        return (
+          /(?<!node_modules.*)[\\/]node_modules[\\/](preact)[\\/]/.test(
+            module
+          ) || regex.test(module)
+        )
+      }
+      actions.replaceWebpackConfig(webpackConfig)
+    }
+  }
+}
