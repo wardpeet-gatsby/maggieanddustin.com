@@ -66,6 +66,7 @@ function Page({
             <Image
               key={img.hero.id}
               alt={img.hero.title || img.hero.description}
+              loading="eager"
               {...img.hero.localFile.childImageSharp}
             />
           ))}
