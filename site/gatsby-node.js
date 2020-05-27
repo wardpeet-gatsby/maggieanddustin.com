@@ -146,3 +146,37 @@ exports.onCreateWebpackConfig = ({ stage, actions, getConfig }) => {
     actions.replaceWebpackConfig(webpackConfig)
   }
 }
+
+exports.onPostBuild = () => {
+  const fs = require('fs')
+  const fonts = require('../font-preload-cache.json')
+
+  const headers = fs
+    .readFileSync('./public/_headers')
+    .toString()
+    .split('\n')
+
+  const indexes = new Map()
+  headers.forEach((line, index) => {
+    if (line.startsWith('/')) {
+      indexes.set(line, index)
+    }
+  })
+
+  let addedFonts = 0
+  for (const path in fonts.assets) {
+    const index = indexes.get(path)
+    if (index) {
+      Object.keys(fonts.assets[path]).forEach(font => {
+        headers.splice(
+          index + 1 + addedFonts,
+          0,
+          `  Link: <${font}>; rel=preload; as=font; type=font/woff2; crossorigin`
+        )
+        addedFonts++
+      })
+    }
+  }
+
+  fs.writeFileSync(`./public/_headers`, headers.join('\n'))
+}
