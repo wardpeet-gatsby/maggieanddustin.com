@@ -119,10 +119,45 @@ exports.createPages = async function createPages({ actions, graphql }) {
   })
 }
 
+class WebpackPolyfillPlugin {
+  name = `WebpackPolyfillPlugin`
+
+  apply(compiler) {
+    compiler.hooks.thisCompilation.tap(this.name, compilation => {
+      compilation.hooks.optimizeChunksBasic.tap(this.name, chunks => {
+        chunks.forEach(chunk => {
+          // iterate through all modules
+          for (const module of chunk.modulesIterable) {
+            if (
+              module.request &&
+              (module.request.includes(`/core-js/`) ||
+                module.request.includes(`\\core-js\\`))
+            ) {
+              chunk.removeModule(module)
+            }
+          }
+        })
+      })
+    })
+  }
+}
+
 exports.onCreateWebpackConfig = ({ stage, actions, getConfig }) => {
   // add preact to the framework bundle
   if (stage === `build-javascript`) {
     const webpackConfig = getConfig()
+
+    webpackConfig.plugins.push(new WebpackPolyfillPlugin())
+
+    const dependencyRulesIndex = webpackConfig.module.rules.findIndex(rule => {
+      return (
+        rule.test &&
+        rule.test.toString() === '/\\.(js|mjs)$/' &&
+        typeof rule.exclude === 'function'
+      )
+    })
+
+    webpackConfig.module.rules.splice(dependencyRulesIndex, 1)
 
     if (webpackConfig.optimization.splitChunks.cacheGroups.framework.test) {
       const regex =
@@ -135,7 +170,7 @@ exports.onCreateWebpackConfig = ({ stage, actions, getConfig }) => {
           ) || regex.test(module)
         )
       }
-      actions.replaceWebpackConfig(webpackConfig)
     }
+    actions.replaceWebpackConfig(webpackConfig)
   }
 }
