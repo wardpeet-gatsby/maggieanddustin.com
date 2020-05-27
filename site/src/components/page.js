@@ -69,24 +69,7 @@ function Page({
               {...img.hero.localFile.childImageSharp}
             />
           ))}
-      <SkipNavContent>
-        {Partial && <Partial />}
-        {children}
-        {page.timeline &&
-          page.timeline.map(timeline => (
-            <Timeline key={timeline.id} {...timeline} />
-          ))}
-        {page.section &&
-          page.section.map(section => (
-            <Section key={section.id} {...section} />
-          ))}
-        {page.party &&
-          page.party.map(party => <WeddingParty key={party.id} {...party} />)}
-        {page.gallery &&
-          page.gallery.map(gallery => (
-            <Gallery key={gallery.id} {...gallery} />
-          ))}
-      </SkipNavContent>
+      <SkipNavContent>{Partial && <Partial />}</SkipNavContent>
     </React.Fragment>
   )
 }
